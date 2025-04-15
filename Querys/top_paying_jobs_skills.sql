@@ -17,7 +17,7 @@ FROM
 INNER JOIN
     company_dim c ON c.company_id = j.company_id
 WHERE
-    j.job_title LIKE '%Data_Analyst%' AND
+    j.job_title_short LIKE '%Data_Analyst%' AND
     j.salary_year_avg IS NOT NULL AND
     j.job_location = 'Anywhere'
 ORDER BY 
