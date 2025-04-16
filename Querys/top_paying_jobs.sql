@@ -10,6 +10,7 @@ employment options and location flexibility.
 SELECT 
     j.job_title_short AS title,
     c.name AS company_name,
+    j.job_title,
     j.job_location AS location,
     j.salary_year_avg 
 FROM
@@ -17,7 +18,7 @@ FROM
 INNER JOIN
     company_dim c ON c.company_id = j.company_id
 WHERE
-    j.job_title LIKE '%Data_Analyst%' AND
+    j.job_title_short LIKE '%Data_Analyst%' AND
     j.salary_year_avg IS NOT NULL AND
     j.job_location = 'Anywhere'
 ORDER BY 

@@ -23,8 +23,7 @@ WHERE
 ORDER BY 
     j.salary_year_avg DESC
 LIMIT 10
-)
-
+), job_to_skills AS (
 SELECT 
   top_ten_jobs.job_id,
   title,
@@ -38,4 +37,11 @@ LEFT JOIN
   skills_dim AS skills ON skills.skill_id = skill_to_job.skill_id
 ORDER BY 
   top_ten_jobs.salary_year_avg DESC
-  ;
+)
+
+SELECT
+  job_to_skills.skills,
+  COUNT(job_to_skills.skills) AS count_of_skills
+FROM job_to_skills
+GROUP BY job_to_skills.skills
+ORDER BY count_of_skills DESC
