@@ -1,39 +1,47 @@
-# Data Analysis jobs
 
-## Introduction
+# 🧠 Data Analyst Jobs Market – SQL Project
 
-In this project we analyse the Data jobs market. Using a database from [Luke Barousse](https://www.linkedin.com/in/luke-b/). We are going to see the top-paying jobs and the most in-demand skills in the sector.
+## 📌 Introduction
 
-If you want to check out the queries: [sql_project](/Querys/)
+In this project, I explored the **Data jobs market**, using a dataset shared by [Luke Barousse](https://www.linkedin.com/in/luke-b/). The goal? To find out which are the **top-paying data analyst jobs** and what **skills are most in demand** in the field.
 
+🔍 If you want to check out the actual SQL queries: [See the queries](/Querys/)
 
-## Background
+---
 
-This project starts with my data analyst jurney. I decided to follow Luke Barousse [course of SQL](https://lukebarousse.com/sql) to learn the basics, but I was surpised. This project is the end of the course, going throw a data set where you can see a lot of details from the listing jobs in 2023 from the data world. Getting a lot of conclusions and also learning a lot in the way.
+## 🗺️ Background
 
-### The problems that we needed to solve:
-1. What are the top paying data analyst jobs?
+This project is part of my journey to becoming a data analyst. I followed [Luke Barousse’s SQL course](https://lukebarousse.com/sql) to strengthen my SQL skills, and I was pleasantly surprised — it ended with this real-world project, analyzing job listings for data roles from 2023.
+
+I learned a lot along the way and gained some powerful insights into the job market.
+
+### 💭 The key questions we wanted to answer:
+
+1. What are the top-paying data analyst jobs?
 2. What skills are required for those jobs?
-3. What are the top paying data analyst jobs?
-4. Wich skills are associated with the higher salaries?
-5. What are the most optimal skills to learn?
+3. Which skills are most associated with higher salaries?
+4. What are the most in-demand skills overall?
+5. Which are the most *optimal* skills to learn (high salary + high demand)?
 
-## Tools used
-To complete this project we used:
-- SQL
-- PostgreSQL
-- Git
+---
 
-## The analysis
+## 🛠️ Tools Used
 
-In this project we are just analyizing data analyst jobs.
+- SQL  
+- PostgreSQL  
+- Git  
 
-#### Top paying jobs:
+---
 
-To identify the best paying roles focusing on the remote job, we filtered by the name and the salary, to clean the data and recive the information that we wanted.
+## 📊 The Analysis
 
+This project focuses on **data analyst jobs**, especially **remote** ones.
 
-````sql
+### 💰 Top-Paying Jobs
+
+We started by identifying the highest-paying remote data analyst positions. Here’s the query we used:
+
+```sql
 SELECT 
     j.job_title_short AS title,
     c.name AS company_name,
@@ -45,28 +53,30 @@ FROM
 INNER JOIN
     company_dim c ON c.company_id = j.company_id
 WHERE
-    j.job_title_short LIKE '%Data_Analyst%' AND
-    j.salary_year_avg IS NOT NULL AND
-    j.job_location = 'Anywhere'
+    j.job_title_short LIKE '%Data_Analyst%'
+    AND j.salary_year_avg IS NOT NULL
+    AND j.job_location = 'Anywhere'
 ORDER BY 
     j.salary_year_avg DESC
 LIMIT 10;
-````
+```
 
-Here's the breakdown of the top-ten data analyst jobs:
-- **Wide salary range** Big diference between the top one ($650,000) and the top two ($336,500) jobs. This indicates a huge variaty of the best payed job offers in the market. 
-- **What would be consider a top paying job?**Estabilization in $180,000, indicating that this number should be the average of the best payed jobs as a data analyst.
-- **Different roles and positions** In the 10 jobs we can see a variaty of job titles ("Data Analyst", "Director of Analytics", "Principal Data Analyst") indicating there are different roles and specialaization within Data Analytics
+#### 🧠 Key Insights from the Top 10:
 
-![Top paying jobs](/assets/top_paying_jobs.jpg)
-*Bar graph visualizing the salary for the top 10 salaries for data analysts; ChatGPT generated this graph from my SQL query results*
+- **Huge salary range** – the highest offer hit **$650,000**, while the second was around **$336,500**!
+- **Stabilization around $180K** – looks like a sweet spot for high-paying analyst roles.
+- **Job title variety** – even within "Data Analyst", we saw titles like *Director of Analytics* and *Principal Data Analyst*.
 
+![Top paying jobs](/assets/top_paying_jobs.jpg)  
+*Bar chart showing the top 10 highest-paying Data Analyst roles*
 
-### Skills for Top Paying jobs:
+---
 
-To identify the skills that where required for the different jobs we use the first query in a CTE and then we used a Join to realte each job posting to the different skill:
+### 🧩 Skills for Top-Paying Jobs
 
-````sql
+Next, we looked at the skills required by the top-paying positions using a CTE + JOIN approach:
+
+```sql
 WITH top_ten_jobs AS (
   SELECT 
     j.job_id,
@@ -74,17 +84,17 @@ WITH top_ten_jobs AS (
     c.name AS company_name,
     j.job_location,
     j.salary_year_avg 
-FROM
+  FROM
     job_postings_fact j
-INNER JOIN
+  INNER JOIN
     company_dim c ON c.company_id = j.company_id
-WHERE
-    j.job_title_short LIKE '%Data_Analyst%' AND
-    j.salary_year_avg IS NOT NULL AND
-    j.job_location = 'Anywhere'
-ORDER BY 
+  WHERE
+    j.job_title_short LIKE '%Data_Analyst%' 
+    AND j.salary_year_avg IS NOT NULL 
+    AND j.job_location = 'Anywhere'
+  ORDER BY 
     j.salary_year_avg DESC
-LIMIT 10
+  LIMIT 10
 )
 
 SELECT 
@@ -99,59 +109,193 @@ INNER JOIN
 LEFT JOIN 
   skills_dim AS skills ON skills.skill_id = skill_to_job.skill_id
 ORDER BY 
-  top_ten_jobs.salary_year_avg DESC
-````
-But going a step further, I decided to sum all the skills for all of the job postings, to see wich skills where the most required
+  salary_year_avg DESC;
+```
 
-````sql
-WITH top_ten_jobs AS (
-  SELECT 
-    j.job_id,
-    j.job_title AS title,
-    c.name AS company_name,
-    j.job_location,
-    j.salary_year_avg 
-FROM
-    job_postings_fact j
-INNER JOIN
-    company_dim c ON c.company_id = j.company_id
-WHERE
-    j.job_title_short LIKE '%Data_Analyst%' AND
-    j.salary_year_avg IS NOT NULL AND
-    j.job_location = 'Anywhere'
-ORDER BY 
-    j.salary_year_avg DESC
-LIMIT 10
-)
+We then grouped and counted the most common skills from those roles:
 
-SELECT 
-  top_ten_jobs.job_id,
-  title,
-  salary_year_avg,
-  skills
-FROM
-  top_ten_jobs
-INNER JOIN
-  skills_job_dim AS skill_to_job ON skill_to_job.job_id = top_ten_jobs.job_id
-LEFT JOIN 
-  skills_dim AS skills ON skills.skill_id = skill_to_job.skill_id
-ORDER BY 
-  top_ten_jobs.salary_year_avg DESC
-)
-
+```sql
 SELECT
   job_to_skills.skills,
   COUNT(job_to_skills.skills) AS count_of_skills
 FROM job_to_skills
 GROUP BY job_to_skills.skills
-ORDER BY count_of_skills DESC
-````
+ORDER BY count_of_skills DESC;
+```
 
-- **SQL** is leading with 8 jobs postings
-- **Python** is repited 7 times 
-- **Tableau** is also in more than a half of the jobs postings
-- And then we can see that **AWS**, **R**, **Snowflake**, **Pandas** and **Excel** are also repeating along the jobs.
+#### 🔧 Most Common Skills in Top-Paying Jobs
 
-With this insights we can have an idea of what are the most important skills to *perfect* in order to have a good payed job in the Data Analyst world
+| Skill       | Count |
+|-------------|-------|
+| SQL         | 8     |
+| Python      | 7     |
+| Tableau     | 6     |
+| Excel       | 3     |
+| AWS         | 3     |
+| Snowflake   | 3     |
+| Pandas      | 3     |
+| R           | 3     |
 
-![Top paying jobs skills](/assets/top_paying_jobs_skills.jpg)
+✅ **SQL and Python** lead the way — no surprise there. Also, tools like **Tableau**, **AWS**, and **Snowflake** are key in well-paid roles.
+
+---
+
+### 📈 Most In-Demand Skills Overall
+
+We also analyzed **all job listings for Data Analysts** to find the most commonly requested skills:
+
+```sql
+SELECT
+    skills_dim.skills,
+    COUNT(*) AS demand_count
+FROM
+    job_postings_fact
+INNER JOIN
+    skills_job_dim ON skills_job_dim.job_id = job_postings_fact.job_id
+RIGHT JOIN
+    skills_dim ON skills_dim.skill_id = skills_job_dim.skill_id
+WHERE
+    job_title LIKE '%Data_Analyst%'
+GROUP BY
+    skills_dim.skills
+ORDER BY
+    demand_count DESC
+LIMIT 5;
+```
+
+#### 🔥 Top 5 Most In-Demand Skills
+
+| Skill     | Demand Count |
+|-----------|--------------|
+| SQL       | 85,030       |
+| Excel     | 57,966       |
+| Python    | 52,174       |
+| Tableau   | 44,330       |
+| Power BI  | 35,221       |
+
+💡 SQL, Excel, and Python are clearly **must-haves**. Then come the big visualization tools: **Tableau** and **Power BI**.
+
+---
+
+### 💸 Skills That Pay the Most
+
+Now let’s look at which skills are **associated with the highest average salaries**:
+
+```sql
+SELECT 
+    skills,
+    ROUND(AVG(salary_year_avg), 0) AS avg_salary
+FROM job_postings_fact
+INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+WHERE
+    job_title_short = 'Data Analyst'
+    AND salary_year_avg IS NOT NULL
+    AND job_work_from_home = True 
+GROUP BY
+    skills
+ORDER BY
+    avg_salary DESC
+LIMIT 25;
+```
+
+Some high-paying examples:
+
+| Skill         | Avg Salary |
+|---------------|------------|
+| PySpark       | $208,172   |
+| Bitbucket     | $189,155   |
+| DataRobot     | $155,486   |
+| Pandas        | $151,821   |
+| NumPy         | $143,513   |
+| Databricks    | $141,907   |
+| Kubernetes    | $132,500   |
+
+Specialized tools and libraries = **higher salaries**, especially those related to data engineering or cloud infrastructure.
+
+---
+
+### 🚀 Most *Optimal* Skills to Learn (High Demand + High Salary)
+
+Here we can see the mix of high demand and high salary of the skills in the job market, helping us to make a decition on what to learn next!
+
+```sql
+WITH skills_demand AS (
+    SELECT
+        skills_dim.skill_id,
+        skills_dim.skills,
+        COUNT(skills_job_dim.job_id) AS demand_count
+    FROM
+        job_postings_fact
+    INNER JOIN
+        skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+    INNER JOIN
+        skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+    WHERE
+        job_postings_fact.job_title_short = 'Data Analyst'
+        AND job_postings_fact.salary_year_avg IS NOT NULL
+        AND job_postings_fact.job_work_from_home = True
+    GROUP BY
+        skills_dim.skill_id
+),
+average_salary AS (
+    SELECT
+        skills_job_dim.skill_id,
+        AVG(job_postings_fact.salary_year_avg) AS avg_salary
+    FROM
+        job_postings_fact
+    INNER JOIN
+        skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+    WHERE
+        job_postings_fact.job_title_short = 'Data Analyst'
+        AND job_postings_fact.salary_year_avg IS NOT NULL
+        AND job_postings_fact.job_work_from_home = True
+    GROUP BY
+        skills_job_dim.skill_id
+)
+
+SELECT
+    skills_demand.skills,
+    skills_demand.demand_count,
+    ROUND(average_salary.avg_salary, 2) AS avg_salary
+FROM
+    skills_demand
+INNER JOIN
+    average_salary ON skills_demand.skill_id = average_salary.skill_id
+ORDER BY
+    demand_count DESC, 
+    avg_salary DESC
+LIMIT 25;
+```
+
+#### 💡 Top Strategic Skills to Learn
+
+| Skill        | Demand Count | Avg Salary ($) |
+|--------------|---------------|----------------|
+| SQL          | 398           | 97,237.16      |
+| Excel        | 256           | 87,288.21      |
+| Python       | 236           | 101,397.22     |
+| Tableau      | 230           | 99,287.65      |
+| R            | 148           | 100,498.77     |
+| Power BI     | 110           | 97,431.30      |
+| SAS          | 63            | 98,902.37      |
+| PowerPoint   | 58            | 88,701.09      |
+| Looker       | 49            | 103,795.30     |
+| Word         | 48            | 82,576.04      |
+| Snowflake    | 37            | 112,947.97     |
+| Oracle       | 37            | 104,533.70     |
+| SQL Server   | 35            | 97,785.73      |
+| Azure        | 34            | 111,225.10     |
+| AWS          | 32            | 108,317.30     |
+
+---
+
+### 📌 Conclusions
+
+Here are some key insights we discovered from the analysis:
+
+1. **Top-Paying Roles**: Remote data analyst jobs can reach salaries up to $650,000, showing the potential in this career path.
+2. **Critical Skills for High Salaries**: SQL stands out as the most required skill in top-paying roles, proving how essential it is.
+3. **Most In-Demand Skills**: Unsurprisingly, SQL, Excel, and Python dominate the demand charts.
+4. **High-Salary Niche Skills**: Technologies like Snowflake, Go, and Hadoop offer incredibly high average salaries, suggesting the value of specialization.
+5. **Balanced Strategy**: If you want to grow fast and stay competitive, mastering both high-demand and high-paying tools (like SQL, Python, and cloud tech) is a smart move.
